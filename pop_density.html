@@ -1,1 +1,128 @@
-hihi
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Population Density Map</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js"></script>
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+        .map-overlay {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            margin: 20px;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: 'Open Sans', sans-serif;
+        }
+        .map-overlay#legend {
+            bottom: 10px;
+            left: 10px;
+        }
+        .map-overlay#features {
+            top: 10px;
+            left: 10px;
+        }
+        .legend-key {
+            display: inline-block;
+            border-radius: 20%;
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="map-overlay" id="features"><p>Hover over a state!</p></div>
+    <div class="map-overlay" id="legend"></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHliZXJ0eTEyMyIsImEiOiJjbHljZmY3eDIxbjl2MmlvbWVvYTBvcXZiIn0.mI6pI_PqDEIcWn7rvCXF_w';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v10',
+            center: [-100, 40],
+            zoom: 3
+        });
+
+        const layers = [
+            '0-10',
+            '10-20',
+            '20-50',
+            '50-100',
+            '100-200',
+            '200-500',
+            '500-1000'
+        ];
+        const colors = [
+            '#FFEDA070',
+            '#FED97670',
+            '#FEB24C70',
+            '#FD8D3C70',
+            '#FC4E2A70',
+            '#E31A1C70',
+            '#BD002670'
+        ];
+
+        layers.forEach((layer, i) => {
+            const color = colors[i];
+            const item = document.createElement('div');
+            const key = document.createElement('span');
+            key.className = 'legend-key';
+            key.style.backgroundColor = color;
+
+            const value = document.createElement('span');
+            value.innerHTML = `${layer}`;
+            item.appendChild(key);
+            item.appendChild(value);
+            document.getElementById('legend').appendChild(item);
+        });
+
+        async function geojsonFetch() {
+            let response = await fetch('assets/stateData.geojson');
+            let stateData = await response.json();
+
+            map.on('load', () => {
+                map.addSource('stateData', {
+                    type: 'geojson',
+                    data: stateData
+                });
+
+                map.addLayer({
+                    'id': 'stateData-layer',
+                    'type': 'fill',
+                    'source': 'stateData',
+                    'paint': {
+                        'fill-color': [
+                            'step',
+                            ['get', 'density'],
+                            '#FFEDA070',
+                            10, '#FED97670',
+                            20, '#FEB24C70',
+                            50, '#FD8D3C70',
+                            100, '#FC4E2A70',
+                            200, '#E31A1C70',
+                            500, '#BD002670'
+                        ],
+                        'fill-opacity': 0.7
+                    }
+                });
+
+                map.on('mousemove', 'stateData-layer', (e) => {
+                    const state = e.features[0];
+                    document.getElementById('features').innerHTML = `
+                        <h3>${state.properties.name}</h3>
+                        <p><strong><em>${state.properties.density}</strong> people per square mile</em></p>`;
+                });
+
+                map.on('mouseleave', 'stateData-layer', () => {
+                    document.getElementById('features').innerHTML = '<p>Hover over a state!</p>';
+                });
+            });
+        }
+        geojsonFetch();
+    </script>
+</body>
+</html>

@@ -36,9 +36,9 @@
 </head>
 <body>
     <div id="map"></div>
-    <div class='map-overlay' id='features'>
+    <div class="map-overlay" id="features">
         <h2>US population density</h2>
-        <div id='text-description'>
+        <div id="text-description">
             <p>Hover over a state!</p>
         </div>
     </div>
@@ -124,12 +124,19 @@
                 map.on('mousemove', 'stateData-layer', (e) => {
                     const state = e.features[0];
                     document.getElementById('features').innerHTML = `
-                        <h3>${state.properties.name}</h3>
-                        <p><strong><em>${state.properties.density}</strong> people per square mile</em></p>`;
+                        <h2>US population density</h2>
+                        <div id="text-description">
+                            <h3>${state.properties.name}</h3>
+                            <p><strong><em>${state.properties.density}</strong> people per square mile</em></p>
+                        </div>`;
                 });
 
                 map.on('mouseleave', 'stateData-layer', () => {
-                    document.getElementById('features').innerHTML = '<p>Hover over a state!</p>';
+                    document.getElementById('features').innerHTML = `
+                        <h2>US population density</h2>
+                        <div id="text-description">
+                            <p>Hover over a state!</p>
+                        </div>`;
                 });
             });
         }

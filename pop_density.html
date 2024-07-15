@@ -36,7 +36,12 @@
 </head>
 <body>
     <div id="map"></div>
-    <div class="map-overlay" id="features"><p>Hover over a state!</p></div>
+    <div class='map-overlay' id='features'>
+        <h2>US population density</h2>
+        <div id='text-description'>
+            <p>Hover over a state!</p>
+        </div>
+    </div>
     <div class="map-overlay" id="legend"></div>
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHliZXJ0eTEyMyIsImEiOiJjbHljZmY3eDIxbjl2MmlvbWVvYTBvcXZiIn0.mI6pI_PqDEIcWn7rvCXF_w';
@@ -68,6 +73,9 @@
             '#800026'
         ];
 
+        const legend = document.getElementById('legend');
+        legend.innerHTML = "<b>Population Density<br>(people/sq.mi.)</b><br><br>";
+        
         layers.forEach((layer, i) => {
             const color = colors[i];
             const item = document.createElement('div');
